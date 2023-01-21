@@ -1,0 +1,11 @@
+while True:
+    print(table)
+    selected_action = prompt.ask("Please select an action:")
+    if selected_action == "Quit":
+        confirm = prompt.confirm("Are you sure you want to quit?")
+        if confirm:
+            break
+        else:
+            continue
+    else:
+        print(f"You selected: {selected_action}")
