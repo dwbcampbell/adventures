@@ -1,3 +1,5 @@
+# Description: This is just a copy of the previous snippet but it asks for confirmation
+
 while True:
     print(table)
     selected_action = prompt.ask("Please select an action:")

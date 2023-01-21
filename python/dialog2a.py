@@ -1,3 +1,6 @@
+# Description: Prompt example 2a - Prompt with a list of choices
+# It prints a list of actions and then asks the user to select an action
+
 from rich.prompt import Prompt
 from rich.text import Text
 

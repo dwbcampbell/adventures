@@ -1,3 +1,7 @@
+# Description: python script generated in response to prompt #1
+# It uses the rich.prompt.Prompt class to ask the user to select an action
+# but it does not display the list of actions
+
 from rich.prompt import Prompt
 from rich.text import Text
 
