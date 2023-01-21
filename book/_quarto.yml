@@ -2,8 +2,8 @@ project:
   type: book
 
 book:
-  title: "book"
-  author: "Jane Doe"
+  title: "Adventures with ChatGPT"
+  author: "Douglas Campbell"
   date: "2023-01-21"
   chapters:
     - index.qmd
