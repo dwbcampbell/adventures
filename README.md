@@ -1,0 +1,2 @@
+# adventures
+Adventures using ChatGPT
