@@ -1,9 +1,9 @@
 # Using the Rich framework in Python
 
-I saw an announcement of a new tool call Octosuite from Bellingcat. It is written in Python and I was curious about what toolkit it used to present a console-based UI. In the source, I saw it used a package called Rich. I wondered if Chat GPT knew about Rich.
+I saw an announcement of a new tool call [Octosuite](https://github.com/bellingcat/octosuite) from [Bellingcat](https://www.bellingcat.com/). It is written in Python and I was curious about what toolkit it used to present a console-based UI. In the source, I saw it used a package called [Rich](https://rich.readthedocs.io/en/stable/introduction.html). I wondered if Chat GPT knew about Rich.
 
-# Interactions
-## Trial #1
+# Dialogs
+## Dialog #1
 
 Create a python script using the Rich framework which presents a list of actions and expects one of them to be selected.
 
@@ -40,7 +40,7 @@ blah blah blah
 
 This is not quite what I wanted because it does not display the available actions before asking for one.
 
-## Trial #2
+## Dialog #2
 
 Display a list of the available actions before asking for the selected actions.
 
@@ -105,7 +105,7 @@ I tried the second suggestion (using a Table to present the options) with the fo
 
 blah blah blah
 
-## Trial #3
+## Dialog #3
 
 Change this script so that after accepting an action from the user, it redisplays the table of actions, until a "Quit" action is selected.
 
@@ -158,4 +158,69 @@ while True:
 ```
 
 This way, the user will have to confirm if they want to quit the application.
+
+### Implementation
+
+## Dialog #4
+Recreate the script using the second of the options above (that is, ask for confirmation when quitting). Also, make sure to define the Prompt object and a Console object. Print the table and prompts to the Console, instead of using the standard python print function.
+
+### ChatGPT
+
+Here's an example of a Python script that uses the Rich library to present a list of actions, display the table of actions until the user selects "Quit" action and also using a Console object and Prompt object to print the table and prompts:
+
+```python
+from rich.console import Console
+from rich.prompt import Prompt
+from rich.table import Table
+
+console = Console()
+prompt = Prompt()
+
+# Define a list of actions
+actions = [["Option 1"], ["Option 2"], ["Option 3"],["Quit"]]
+
+# Create table
+table = Table(title="Available actions")
+table.add_column("Actions")
+
+for action in actions:
+    table.add_row(*action)
+
+# Ask the user to select an action
+while True:
+    console.print(table)
+    selected_action = prompt.ask("Please select an action:")
+    if selected_action == "Quit":
+        confirm = prompt.confirm("Are you sure you want to quit?")
+        if confirm:
+            break
+        else:
+            continue
+    else:
+        console.print(f"You selected: {selected_action}")
+
+```
+
+This script uses a while loop that continues to display the table of actions and ask the user to select an action until the user selects "Quit". The break statement is used to exit the loop when the user confirms they want to quit. Note that the action "Quit" is added to the actions list. Also, A Console and Prompt objects are defined and it uses these objects to print the table and prompts instead of using the standard python print function.
+
+Also, you could use the Console object to print an error message in case the selected action is not valid.
+
+```python
+while True:
+    console.print(table)
+    selected_action = prompt.ask("Please select an action:")
+    if selected_action == "Quit":
+        confirm = prompt.confirm("Are you sure you want to quit?")
+        if confirm:
+            break
+        else:
+            continue
+    elif selected_action not in actions:
+        console.print("Invalid action selected", style="red")
+    else:
+        console.print(f"You selected: {selected_action}")
+```
+
+
+
 
