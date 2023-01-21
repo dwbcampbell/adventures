@@ -1,0 +1,161 @@
+# Using the Rich framework in Python
+
+I saw an announcement of a new tool call Octosuite from Bellingcat. It is written in Python and I was curious about what toolkit it used to present a console-based UI. In the source, I saw it used a package called Rich. I wondered if Chat GPT knew about Rich.
+
+# Interactions
+## Trial #1
+
+Create a python script using the Rich framework which presents a list of actions and expects one of them to be selected.
+
+### ChatGPT
+
+Here's an example of a simple Python script that uses the Rich library to present a list of actions and expects the user to select one:
+
+```python
+from rich.prompt import Prompt
+from rich.text import Text
+
+# Define a list of actions
+actions = ["Option 1", "Option 2", "Option 3"]
+
+# Create a prompt with the list of actions
+prompt = Prompt(choices=actions)
+
+# Ask the user to select an action
+selected_action = prompt.ask("Please select an action:")
+
+# Print the selected action
+print(f"You selected: {selected_action}")
+
+```
+
+The script uses the Prompt class from the Rich library to create a prompt that displays a list of choices. The choices parameter is used to pass in the list of actions. The ask() method is used to display the prompt and wait for the user to make a selection. The selected action is returned as a string and can be stored in a variable or processed in any way you want.
+
+
+### Implementation
+
+Running the foregoing results in the following:
+
+blah blah blah
+
+This is not quite what I wanted because it does not display the available actions before asking for one.
+
+## Trial #2
+
+Display a list of the available actions before asking for the selected actions.
+
+### ChatGPT
+Here's an example of a Python script that uses the Rich library to present a list of actions and expects the user to select one after displaying the list of actions:
+
+```python
+from rich.prompt import Prompt
+from rich.text import Text
+
+# Define a list of actions
+actions = ["Option 1", "Option 2", "Option 3"]
+
+# Create a prompt with the list of actions
+prompt = Prompt(choices=actions)
+
+# Print the list of actions
+print("Available actions:")
+for action in actions:
+    print(f"- {action}")
+
+# Ask the user to select an action
+selected_action = prompt.ask("Please select an action:")
+
+# Print the selected action
+print(f"You selected: {selected_action}")
+
+```
+
+This script is similar to the previous one, but it adds a loop that iterates through the list of actions and prints them out before the prompt is displayed. This way the user can see the list of actions before making a selection.
+
+You could also use rich.table to display the list of actions in a tabular format.
+
+```python
+from rich.table import Table
+
+# Define a list of actions
+actions = [["Option 1"], ["Option 2"], ["Option 3"]]
+
+# Create table
+table = Table(title="Available actions")
+table.add_column("Actions")
+
+for action in actions:
+    table.add_row(*action)
+
+print(table)
+
+# Ask the user to select an action
+selected_action = prompt.ask("Please select an action:")
+
+# Print the selected action
+print(f"You selected: {selected_action}")
+
+```
+
+This way it will be more readable and easy to understand.
+
+### Implementation
+
+I tried the second suggestion (using a Table to present the options) with the following results:
+
+blah blah blah
+
+## Trial #3
+
+Change this script so that after accepting an action from the user, it redisplays the table of actions, until a "Quit" action is selected.
+
+### ChatGPT
+
+Here's an example of a Python script that uses the Rich library to present a list of actions, display the table of actions until the user selects "Quit" action:
+
+```python
+from rich.prompt import Prompt
+from rich.table import Table
+
+# Define a list of actions
+actions = [["Option 1"], ["Option 2"], ["Option 3"],["Quit"]]
+
+# Create table
+table = Table(title="Available actions")
+table.add_column("Actions")
+
+for action in actions:
+    table.add_row(*action)
+
+# Ask the user to select an action
+while True:
+    print(table)
+    selected_action = prompt.ask("Please select an action:")
+    if selected_action == "Quit":
+        break
+    else:
+        print(f"You selected: {selected_action}")
+
+```
+
+This script uses a while loop that continues to display the table of actions and ask the user to select an action until the user selects "Quit". The break statement is used to exit the loop when the user selects "Quit". Note that the action "Quit" is added to the actions list.
+
+Also, you could add a message to confirm the selected action and ask for confirmation before quiting the application, like this:
+
+```python
+while True:
+    print(table)
+    selected_action = prompt.ask("Please select an action:")
+    if selected_action == "Quit":
+        confirm = prompt.confirm("Are you sure you want to quit?")
+        if confirm:
+            break
+        else:
+            continue
+    else:
+        print(f"You selected: {selected_action}")
+
+```
+
+This way, the user will have to confirm if they want to quit the application.
+
