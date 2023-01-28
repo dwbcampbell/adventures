@@ -1,6 +1,8 @@
 # Using the Rich framework in Python
 
-I saw an announcement of a new tool call [Octosuite](https://github.com/bellingcat/octosuite) from [Bellingcat](https://www.bellingcat.com/). It is written in Python and I was curious about what toolkit it used to present a console-based UI. In the source, I saw it used a package called [Rich](https://rich.readthedocs.io/en/stable/introduction.html). I wondered if Chat GPT knew about Rich.
+In this experiment, I try using the [Rich](https://rich.readthedocs.io/en/stable/introduction.html) framework in Python to create a simple console-based UI.
+
+I learned about Rich browsing news about the war in Ukraine. I saw an announcement of a new tool call [Octosuite](https://github.com/bellingcat/octosuite) from [Bellingcat](https://www.bellingcat.com/), the investigative journalism group. This is not a tool I would normally use, but I was curious about the framework they used to create the tool.
 
 # Dialogs
 ## Dialog #1
@@ -36,7 +38,11 @@ The script uses the Prompt class from the Rich library to create a prompt that d
 
 Running the foregoing results in the following:
 
-blah blah blah
+```bash
+douglascampbell@Douglass-MacBook-Air python % python dialog1.py 
+Please select an action:: 1
+You selected: 1
+```
 
 This is not quite what I wanted because it does not display the available actions before asking for one.
 
@@ -220,6 +226,10 @@ while True:
     else:
         console.print(f"You selected: {selected_action}")
 ```
+
+### Implementation
+
+![Console](dialog4.gif)
 
 
 

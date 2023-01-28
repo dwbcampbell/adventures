@@ -1,0 +1,464 @@
+# Creating a German Dictionary App
+
+[Kaikki.org](https://kaikki.org/dictionary/German/) provides open source dictionaries based on Wiktionary. The dictionaries are available in JSON format and can be used to create apps for different languages. Each line in a dictionary is a json document defining a single word.
+
+Dictionaries are available for several modern languages, including Spanish, French, German and Polish, and also for some ancient languages, such as Latin, Ancient Greek and Old English. You can also download a dictionary of all languages combined.
+
+In the following interactions, I try to get ChatGPT to read a dictionary, using the German one as an example, and store it into a sqlite database. 
+
+## Experiment #1
+
+I provide ChatGPT with an example of a dictionary entry for a single word, but don't ask it to read a whole dictionary.
+
+> Write a python script to read the following json representation of a german language dictionary and store it into a sqlite database:
+
+```json 
+{
+    "pos": "adv",
+    "head_templates": [
+        {
+            "name": "head",
+            "args": {
+                "1": "de",
+                "2": "adverb",
+                "head": "",
+                "sort": "",
+                "3": "",
+                "4": "",
+                "5": "",
+                "6": "am {{{2}}}"
+            },
+            "expansion": "umsonst"
+        },
+        {
+            "name": "de-adv",
+            "args": {},
+            "expansion": "umsonst"
+        }
+    ],
+    "etymology_text": "um + sonst, compare Danish omsonst.",
+    "etymology_templates": [
+        {
+            "name": "affix",
+            "args": {
+                "1": "de",
+                "2": "um",
+                "3": "sonst"
+            },
+            "expansion": "um + sonst"
+        },
+        {
+            "name": "cog",
+            "args": {
+                "1": "da",
+                "2": "omsonst"
+            },
+            "expansion": "Danish omsonst"
+        }
+    ],
+    "sounds": [
+        {
+            "ipa": "/\u028am\u02c8z\u0254nst/"
+        },
+        {
+            "audio": "De-umsonst.ogg",
+            "text": "Audio",
+            "ogg_url": "https://upload.wikimedia.org/wikipedia/commons/d/d0/De-umsonst.ogg",
+            "mp3_url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/d/d0/De-umsonst.ogg/De-umsonst.ogg.mp3"
+        }
+    ],
+    "word": "umsonst",
+    "lang": "German",
+    "lang_code": "de",
+    "categories": [],
+    "senses": [
+        {
+            "raw_glosses": [
+                "free of charge, gratis"
+            ],
+            "synonyms": [
+                {
+                    "word": "gratis"
+                },
+                {
+                    "word": "kostenlos"
+                },
+                {
+                    "word": "kostenfrei"
+                }
+            ],
+            "glosses": [
+                "free of charge, gratis"
+            ],
+            "id": "umsonst-de-adv-i-wfpBXp"
+        },
+        {
+            "raw_glosses": [
+                "in vain, without success"
+            ],
+            "synonyms": [
+                {
+                    "word": "vergebens"
+                },
+                {
+                    "word": "vergeblich"
+                },
+                {
+                    "word": "erfolglos"
+                }
+            ],
+            "glosses": [
+                "in vain, without success"
+            ],
+            "id": "umsonst-de-adv-Rkvq6kwO"
+        },
+        {
+            "raw_glosses": [
+                "for nothing; for the sake of doing it (without expecting reply)"
+            ],
+            "glosses": [
+                "for nothing; for the sake of doing it (without expecting reply)"
+            ],
+            "id": "umsonst-de-adv-7meMaXEs"
+        }
+    ]
+}
+```
+
+### ChatGPT's response
+
+Here is a Python script that reads the given JSON representation of a German language dictionary and stores it into a SQLite database:
+
+```python
+import json
+import sqlite3
+
+# Load JSON data
+with open('dictionary.json', 'r') as file:
+    data = json.load(file)
+
+# Connect to SQLite database
+conn = sqlite3.connect('dictionary.db')
+cursor = conn.cursor()
+
+# Create table for dictionary data
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS dictionary (
+        pos TEXT,
+        etymology_text TEXT,
+        word TEXT,
+        lang TEXT,
+        lang_code TEXT,
+        id INTEGER PRIMARY KEY
+    )
+''')
+
+# Insert data into dictionary table
+cursor.execute('''
+    INSERT INTO dictionary (pos, etymology_text, word, lang, lang_code)
+    VALUES (?,?,?,?,?)
+''', (data['pos'], data['etymology_text'], data['word'], data['lang'], data['lang_code']))
+
+# Create table for head_templates data
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS head_templates (
+        name TEXT,
+        args TEXT,
+        expansion TEXT,
+        id INTEGER PRIMARY KEY,
+        FOREIGN KEY (id) REFERENCES dictionary (id)
+    )
+''')
+
+# Insert data into head_templates table
+for template in data['head_templates']:
+    cursor.execute('''
+        INSERT INTO head_templates (name, args, expansion)
+        VALUES (?,?,?)
+    ''', (template['name'], json.dumps(template['args']), template['expansion']))
+
+# Create table for etymology_templates data
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS etymology_templates (
+        name TEXT,
+        args TEXT,
+        expansion TEXT,
+        id INTEGER PRIMARY KEY,
+        FOREIGN KEY (id) REFERENCES dictionary (id)
+    )
+''')
+
+# Insert data into etymology_templates table
+for template in data['etymology_templates']:
+    cursor.execute('''
+        INSERT INTO etymology_templates (name, args, expansion)
+        VALUES (?,?,?)
+    ''', (template['name'], json.dumps(template['args']), template['expansion']))
+
+# Create table for sounds data
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS sounds (
+        ipa TEXT,
+        audio TEXT,
+        text TEXT,
+        ogg_url TEXT,
+        mp3_url TEXT,
+        id INTEGER PRIMARY KEY,
+        FOREIGN KEY (id) REFERENCES dictionary (id)
+    )
+''')
+
+# Insert data into sounds table
+for sound in data['sounds']:
+    cursor.execute('''
+        INSERT INTO sounds (ipa, audio, text, ogg_url, mp3_url)
+        VALUES (?,?,?,?,?)
+    ''', (sound.get('ipa'), sound.get('audio'), sound.get('text'), sound.get('ogg_url'), sound.get('mp3_url')))
+
+# Create table for senses data
+
+cursor.execute('''
+CREATE TABLE IF NOT EXISTS senses (
+raw_glosses TEXT,
+synonyms TEXT,
+glosses TEXT,
+id TEXT,
+FOREIGN KEY (id) REFERENCES dictionary (id)
+)
+''')
+
+# Insert data into senses table
+
+for sense in data['senses']:
+cursor.execute('''
+INSERT INTO senses (raw_glosses, synonyms, glosses, id)
+VALUES (?,?,?,?)
+''', (json.dumps(sense['raw_glosses']), json.dumps(sense['synonyms']), json.dumps(sense['glosses']), sense['id']))
+
+# Commit changes and close connection
+
+conn.commit()
+conn.close()
+```
+
+### Remarks
+
+1. The response was longer than could be displayed by ChatGPT, so I had to say "Please continue" to get the rest of the response. But the response was not correctly formatted.
+
+2. The table definitions include a foreigh key constraint, but the primary key is not set.
+
+## Experiment 2
+
+> For the python script above, how can I get the integer primary key from the dictionary table into the other tables so that the foreign key constraint is satisfied?
+
+### ChatGPT's response
+
+To get the integer primary key from the dictionary table and use it as a foreign key in the other tables, you can use the lastrowid property of the cursor after executing the insert statement for the dictionary table.
+
+You can add the following code after the insert statement for the dictionary table:
+
+```python
+# Get the primary key of the last inserted row in the dictionary table
+dictionary_id = cursor.lastrowid
+```
+
+This will retrieve the primary key of the last inserted row in the dictionary table and store it in the variable dictionary_id.
+
+Then you can use this dictionary_id as a foreign key in the insert statement for the other tables.
+
+```python
+# Insert data into head_templates table
+for template in data['head_templates']:
+    cursor.execute('''
+        INSERT INTO head_templates (name, args, expansion, id)
+        VALUES (?,?,?,?)
+    ''', (template['name'], json.dumps(template['args']), template['expansion'], dictionary_id))
+
+```
+
+In this example, I've added a new parameter in the insert statement, which is the dictionary_id, this will set the foreign key constraint to the id of the last inserted row in the dictionary table.
+
+You should also do the same for the other tables (etymology_templates and sounds).
+
+By doing this, you are linking all the tables to the dictionary table through the primary key and foreign key relationship, and the database will maintain integrity between the tables.
+
+### Remarks
+
+## Experiment #3
+ 
+> Please give the tables defined above as a sql script.
+
+### ChatGPT's response
+
+Here is the SQL script to create the tables defined in the Python script above:
+
+```sql
+CREATE TABLE IF NOT EXISTS dictionary (
+    pos TEXT,
+    etymology_text TEXT,
+    word TEXT,
+    lang TEXT,
+    lang_code TEXT,
+    id INTEGER PRIMARY KEY
+);
+
+CREATE TABLE IF NOT EXISTS head_templates (
+    name TEXT,
+    args TEXT,
+    expansion TEXT,
+    id INTEGER,
+    FOREIGN KEY (id) REFERENCES dictionary (id)
+);
+
+CREATE TABLE IF NOT EXISTS etymology_templates (
+    name TEXT,
+    args TEXT,
+    expansion TEXT,
+    id INTEGER,
+    FOREIGN KEY (id) REFERENCES dictionary (id)
+);
+
+CREATE TABLE IF NOT EXISTS sounds (
+    ipa TEXT,
+    audio TEXT,
+    text TEXT,
+    ogg_url TEXT,
+    mp3_url TEXT,
+    id INTEGER,
+    FOREIGN KEY (id) REFERENCES dictionary (id)
+);
+
+CREATE TABLE IF NOT EXISTS senses (
+    raw_glosses TEXT,
+    synonyms TEXT,
+    glosses TEXT,
+    id TEXT,
+    FOREIGN KEY (id) REFERENCES dictionary (id)
+);
+
+```
+
+### Remarks
+
+## Experiment #4
+
+> Write a python script to delete the contents of all the tables.
+
+### ChatGPT's response
+
+Here is a Python script that deletes the contents of all the tables in an SQLite database:
+
+```python
+import sqlite3
+
+# Connect to SQLite database
+conn = sqlite3.connect('dictionary.db')
+cursor = conn.cursor()
+
+# Delete contents of dictionary table
+cursor.execute('DELETE FROM dictionary')
+
+# Delete contents of head_templates table
+cursor.execute('DELETE FROM head_templates')
+
+# Delete contents of etymology_templates table
+cursor.execute('DELETE FROM etymology_templates')
+
+# Delete contents of sounds table
+cursor.execute('DELETE FROM sounds')
+
+# Delete contents of senses table
+cursor.execute('DELETE FROM senses')
+
+# Commit changes and close connection
+conn.commit()
+conn.close()
+```
+
+This script uses the sqlite3 module to connect to an SQLite database and execute the DELETE statements to delete the contents of each table. The script assumes that the SQLite database is named dictionary.db. You may need to change the name of the database depending on your setup.
+
+You can also use the TRUNCATE command to delete all the rows from a table and reset the auto-increment counter to 0, for example:
+
+```python
+cursor.execute('TRUNCATE TABLE dictionary')
+```
+
+Please note that TRUNCATE command may not work in all database management systems, it may only work in some systems like SQLite.
+
+Also, it is a good practice to use cursor.execute('VACUUM') after truncating tables, this will reclaim the space left by deleted rows.
+
+### Remarks
+
+## Experiment #5
+
+> Rewrite the initial script so that 1) it reads an input file containing one JSON document per line, 2) it assumes the database already exists and doesn't need to define the tables and 3) get the primary key of the last inserted row and use it to set the relevant foreign keys.
+
+## CHATGPT's response
+```python
+import json
+import sqlite3
+
+# Connect to the database
+conn = sqlite3.connect('dictionary.db')
+cursor = conn.cursor()
+
+# Read input file, one JSON document per line
+with open("dictionary.json", "r") as f:
+    for line in f:
+        data = json.loads(line)
+        
+        # Insert data into dictionary table
+        cursor.execute("INSERT INTO dictionary (word, lang, lang_code, pos, etymology_text) VALUES (?, ?, ?, ?, ?)",
+                       (data["word"], data["lang"], data["lang_code"], data["pos"], data["etymology_text"]))
+        dictionary_id = cursor.lastrowid
+        
+        # Insert data into head_templates table
+        for head_template in data["head_templates"]:
+            cursor.execute("INSERT INTO head_templates (dictionary_id, name, args, expansion) VALUES (?, ?, ?, ?)",
+                           (dictionary_id, head_template["name"], json.dumps(head_template["args"]), head_template["expansion"]))
+        
+        # Insert data into etymology_templates table
+        for etymology_template in data["etymology_templates"]:
+            cursor.execute("INSERT INTO etymology_templates (dictionary_id, name, args, expansion) VALUES (?, ?, ?, ?)",
+                           (dictionary_id, etymology_template["name"], json.dumps(etymology_template["args"]), etymology_template["expansion"]))
+        
+        # Insert data into sounds table
+        for sound in data["sounds"]:
+            cursor.execute("INSERT INTO sounds (dictionary_id, ipa, audio, text, ogg_url, mp3_url) VALUES (?, ?, ?, ?, ?, ?)",
+                           (dictionary_id, sound.get("ipa"), sound.get("audio"), sound.get("text"), sound.get("ogg_url"), sound.get("mp3_url")))
+        
+        # Insert data into senses table
+        for sense in data["senses"]:
+            cursor.execute("INSERT INTO senses (dictionary_id, raw_glosses, glosses) VALUES (?, ?, ?)",
+                           (dictionary_id, json.dumps(sense["raw_glosses"]), json.dumps(sense["glosses"])))
+            sense_id = cursor.lastrowid
+            
+            # Insert data into synonyms table
+            for synonym in sense["synonyms"]:
+                cursor.execute("INSERT INTO synonyms (sense_id, word) VALUES (?, ?)",
+                               (sense_id, synonym["word"]))
+        
+        # Insert data into categories table
+        for category in data["categories"]:
+            cursor.execute("INSERT INTO categories (dictionary_id, name) VALUES (?, ?)",
+                           (dictionary_id, category))
+        
+        # Commit the transaction
+        conn.commit()
+
+# Close the connection
+conn.close()
+```
+
+Please note that this script assumes that the tables have already been created and the table schema is the same as the one described in the previous answer. Also, in this script, the primary
+
+## Remarks
+
+ChatGPT stopped in mid-sentence, and when I asked it to continue, it repeated the previous python code except that it put the db update code into a function.
+
+
+
+
+
+
+

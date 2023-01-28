@@ -1,5 +1,6 @@
 # Introduction
 
-This is a book created from markdown and executable code.
+This document presents a collection of experiments using ChatGPT and other AI frameworks and tools.
 
-See @knuth84 for additional discussion of literate programming.
+The document was created using the [Quarto](https://quarto.org) framework. Terminal animations were created using [asciinema](https://asciinema.org) and converted to GIFs using [asciicast2gif](https://github.com/asciinema/agg)
+

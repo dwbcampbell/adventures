@@ -8,7 +8,9 @@ book:
   chapters:
     - index.qmd
     - intro.qmd
+    - german_dictionary.qmd
     - usingrich.qmd
+    - textual.qmd
     - summary.qmd
     - references.qmd
 
@@ -17,6 +19,8 @@ bibliography: references.bib
 format:
   html:
     theme: cosmo
+    toc: true
+    toc-depth: 3
   pdf:
     documentclass: scrreprt
 
