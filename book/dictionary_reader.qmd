@@ -243,11 +243,52 @@ conn.close()
 
 ### Remarks
 
-1. The response was longer than could be displayed by ChatGPT, so I had to say "Please continue" to get the rest of the response. But the response was not correctly formatted.
+1. The response was longer than could be displayed by ChatGPT, so I had to say "Please continue" to get the rest of the response. But the response was not correctly formatted, which is a nuisance with python.
 
 2. The table definitions include a foreigh key constraint, but the primary key is not set.
 
-## Experiment 2
+3. The python code uses [] to access the elements of the JSON object, but this fails if the element is not present. I asked ChatGPT how to fix this.
+
+## Dealing with optional elements
+
+> What is the python idiom to get an element from a json structure if it exists, and a default value if it doesn't exist?
+
+### ChatGPT's response
+The python idiom to get an element from a JSON structure if it exists, and a default value if it doesn't exist, is to use the .get() method of a dictionary. This method takes two arguments: the first is the key for the value you want to retrieve, and the second is the default value to return if the key is not found.
+
+For example, if you have a JSON object stored in the variable data, you can get the value of the key 'pos' and assign it to a variable pos like this:
+
+```python
+pos = data.get('pos', 'N/A')
+```
+
+If the key 'pos' exists in data, the value will be assigned to pos. If the key 'pos' does not exist in data, the default value 'N/A' will be assigned to pos.
+
+The get() method is an alternative to using the dictionary key access operator [], which raises KeyError if the key is not found.
+
+```python
+try:
+    pos = data['pos']
+except KeyError:
+    pos = 'N/A'
+```
+
+The .get() method is also useful when working with nested JSON structures where you want to access a value from a nested dictionary and return a default value if the key is not found.
+
+```python
+pos = data.get('pos', {}).get('head', 'N/A')
+```
+
+This will first look for the key 'pos' in the top-level dictionary, and if it exists, it will look for the key 'head' in the nested dictionary returned by the first get() call, and return the value if it is found, otherwise return 'N/A'.
+
+
+### Remarks
+
+I modified the initial script to use the .get() method instead of the [] operator, but I should have tried telling ChatGPT to do that. I address that at __ below.
+
+## Experiment 3
+
+
 
 > For the python script above, how can I get the integer primary key from the dictionary table into the other tables so that the foreign key constraint is satisfied?
 
@@ -284,7 +325,7 @@ By doing this, you are linking all the tables to the dictionary table through th
 
 ### Remarks
 
-## Experiment #3
+## Experiment #4
  
 > Please give the tables defined above as a sql script.
 
@@ -340,7 +381,9 @@ CREATE TABLE IF NOT EXISTS senses (
 
 ### Remarks
 
-## Experiment #4
+Good, but it made the id of senses a Text field instead of an Integer field. 
+
+## Experiment #5
 
 > Write a python script to delete the contents of all the tables.
 
@@ -389,7 +432,7 @@ Also, it is a good practice to use cursor.execute('VACUUM') after truncating tab
 
 ### Remarks
 
-## Experiment #5
+## Experiment #6
 
 > Rewrite the initial script so that 1) it reads an input file containing one JSON document per line, 2) it assumes the database already exists and doesn't need to define the tables and 3) get the primary key of the last inserted row and use it to set the relevant foreign keys.
 
@@ -456,8 +499,92 @@ Please note that this script assumes that the tables have already been created a
 
 ChatGPT stopped in mid-sentence, and when I asked it to continue, it repeated the previous python code except that it put the db update code into a function.
 
+But the code failed because of the use of [] instead of get(). Sometimes it uses get() and sometimes it uses [].
+
+## Experiment #7
+
+The following prompt was suggested by Github Copilot which I have running in VS Code.
+
+> Rewrite the script so that it uses the get() method instead of [] to access the dictionary keys.
+
+### ChatGPT's response
+
+### Remarks
+
+## Experiment #8
+
+> Create a entity-relationship diagram of the database previously defined using the Mermaid.js syntax.
+
+### ChatGPT's response
+
+Here is an entity-relationship diagram of the database using Mermaid.js syntax:
+
+```{mermaid}
+graph LR
+
+Dictionary(Dictionary)-->HeadTemplate(Head Template)
+Dictionary(Dictionary)-->EtymologyTemplate(Etymology Template)
+Dictionary(Dictionary)-->Sound(Sound)
+Dictionary(Dictionary)-->Sense(Sense)
+
+HeadTemplate(Head Template)-->Synonym(Synonym)
+Sense(Sense)-->Synonym(Synonym)
+```
+
+### Remarks
+
+This is nice but it is using a generic graph (graph LR) instead of an entity-relationship diagram.
+
+I tried to be more specific and asked it to create an entity-relationship diagram, but I couldn't get it to understand the difference. For example, it produced:
+
+A sequence diagram (and for another database):
+
+```{mermaid}
+sequenceDiagram
+User ->> Product: Insert
+Product->> Product: Store primary key
+Product->> Order: Set foreign key
+Order->> OrderLine: Set foreign key
+OrderLine->> OrderLine: Store primary key
+
+```
+
+An ER diagram, but for another database, and not syntactically correct:
+
+```
+
+```{mermaid}
+erDiagram
+    entity User {
+        UserID int [pk]
+        FirstName string
+        LastName string
+    }
+    entity Book {
+        BookID int [pk]
+        Title string
+        Author string
+        Genre string
+    }
+    entity Loan {
+        LoanID int [pk]
+        UserID int [fk -> User.UserID]
+        BookID int [fk -> Book.BookID]
+        DateOut date
+        DueDate date
+    }
+```
+
+## Conclusion
+
+ChatGPT can be useful for the initial generation of code but it is difficult to get it to refine the code through iterations. It might be better to use it to generate an initial example, then use an AI code assistant to refine the code.
+
+[Mermaid.js](https://blog.ouseful.info/2022/12/12/generating-diagrams-from-text-generated-by-chatgpt/)
 
 
+I found somebody who experimented using ChatGPT and various text-based diagramming tools:
+
+[Experiments](https://blog.ouseful.info/2022/12/12/generating-diagrams-from-text-generated-by-chatgpt/)
 
 
 

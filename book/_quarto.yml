@@ -8,7 +8,7 @@ book:
   chapters:
     - index.qmd
     - intro.qmd
-    - german_dictionary.qmd
+    - dictionary_reader.qmd
     - usingrich.qmd
     - textual.qmd
     - summary.qmd
